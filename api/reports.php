@@ -8,7 +8,7 @@ $from = $_GET['from'] ?? date('Y-m-01');
 $to   = $_GET['to']   ?? date('Y-m-t');
 $eid  = (int)($_GET['estate_id'] ?? 0);
 $eW = " AND d.owner_user_id=$tenant".($eid ? " AND d.estate_id=$eid" : '');
-$eWe = " AND owner_user_id=$tenant".($eid ? " AND estate_id=$eid" : '');
+$eWe = " AND expenses.owner_user_id=$tenant".($eid ? " AND expenses.estate_id=$eid" : '');
 $export = $_GET['export'] ?? '';
 
 try {
