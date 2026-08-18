@@ -26,11 +26,24 @@ async function changeAdminPw(){
   }catch(e){toast(e.message,true);}
 }
 
+function showLogo(url){
+  const wrap=document.getElementById('logoPreviewWrap');
+  if(url){
+    document.getElementById('logoPreview').src=url;
+    wrap.style.display='flex';
+    document.getElementById('removeLogoBtn').style.display='';
+  }else{
+    wrap.style.display='none';
+    document.getElementById('removeLogoBtn').style.display='none';
+  }
+}
+
 (async()=>{
   try{
     const j=await api('api/admin_settings.php?action=get');
     document.getElementById('siteName').value=j.settings.site_name||'';
     document.getElementById('supportEmail').value=j.settings.support_email||'';
+    showLogo(j.settings.logo_url);
   }catch(e){toast(e.message,true);}
 })();
 
@@ -41,6 +54,31 @@ async function saveSettings(){
       support_email:document.getElementById('supportEmail').value,
     });
     toast('Site settings saved');
+  }catch(e){toast(e.message,true);}
+}
+
+async function uploadLogo(){
+  const input=document.getElementById('logoFile');
+  if(!input.files.length){toast('Choose a logo file first',true);return;}
+  const fd=new FormData();
+  fd.append('logo',input.files[0]);
+  fd.append('csrf',window.CSRF);
+  try{
+    const r=await fetch('api/admin_settings.php?action=upload_logo',{method:'POST',body:fd});
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||'Upload failed');
+    toast('Logo updated');
+    showLogo(j.logo_url);
+    input.value='';
+  }catch(e){toast(e.message,true);}
+}
+
+async function removeLogo(){
+  if(!confirmDelete('Remove the current logo and go back to the default icon?'))return;
+  try{
+    await api('api/admin_settings.php?action=remove_logo',{});
+    toast('Logo removed');
+    showLogo('');
   }catch(e){toast(e.message,true);}
 }
 

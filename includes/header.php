@@ -31,7 +31,7 @@ $nav = [
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-logo">🍃</div>
+      <div class="brand-logo"><?=brand_mark('🍃')?></div>
       <div class="brand-txt"><span><?=e(site_name())?></span><small>Management</small></div>
     </div>
     <nav class="nav">

@@ -30,6 +30,17 @@ $curEmail = $curEmail->fetchColumn();
     <div class="field"><label>Support Contact Email</label><input id="supportEmail" type="email"></div>
   </div>
   <button class="btn" style="margin-top:14px" onclick="saveSettings()">Save Site Settings</button>
+
+  <h3 style="margin:24px 0 0">Logo</h3>
+  <div style="display:flex;align-items:center;gap:16px;margin-top:10px">
+    <div id="logoPreviewWrap" style="display:none;width:64px;height:64px;border-radius:12px;border:1px solid var(--line);align-items:center;justify-content:center;overflow:hidden">
+      <img id="logoPreview" style="width:100%;height:100%;object-fit:contain">
+    </div>
+    <div class="field" style="flex:1;margin:0"><input id="logoFile" type="file" accept=".png,.jpg,.jpeg,.webp,.svg"></div>
+    <button class="btn" onclick="uploadLogo()">Upload Logo</button>
+    <button class="btn gray" id="removeLogoBtn" style="display:none" onclick="removeLogo()">Remove</button>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">PNG, JPG, WEBP or SVG, up to 2MB. Replaces the leaf icon across the app.</p>
 </div></div>
 
 <div class="card"><div class="card-pad">

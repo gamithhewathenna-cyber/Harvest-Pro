@@ -61,9 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Register · <?=e(APP_NAME)?></title><link rel="stylesheet" href="<?=av('assets/css/app.css')?>"></head>
+<title>Register · <?=e(site_name())?></title><link rel="stylesheet" href="<?=av('assets/css/app.css')?>"></head>
 <body><div class="login-wrap"><div class="login-card" style="max-width:440px">
-  <div class="login-logo">🍃</div>
+  <div class="login-logo"><?=brand_mark('🍃')?></div>
   <h1>Create your account</h1><p>Tea Estate Plan</p>
   <?php if($err): ?><div class="badge b-red" style="display:block;padding:10px;margin-bottom:14px;text-align:center"><?=e($err)?></div><?php endif; ?>
   <form method="post">

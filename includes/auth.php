@@ -78,6 +78,24 @@ function site_name() {
     return $name;
 }
 
+/** Uploaded logo URL (cache-busted), or '' if none has been set - callers fall back to the emoji brand mark */
+function logo_url() {
+    static $url = null;
+    if ($url === null) {
+        try {
+            $path = db()->query("SELECT svalue FROM platform_settings WHERE skey='logo_path'")->fetchColumn();
+        } catch (Throwable $e) { $path = false; }
+        $url = ($path && file_exists(__DIR__.'/../'.$path)) ? av($path) : '';
+    }
+    return $url;
+}
+
+/** Renders the uploaded logo (if any), else the given fallback emoji - drop-in for a brand-logo box */
+function brand_mark($fallbackEmoji) {
+    $lg = logo_url();
+    return $lg ? '<img src="'.e($lg).'" style="width:100%;height:100%;object-fit:contain">' : $fallbackEmoji;
+}
+
 /** Cache-busting asset URL: appends the file's last-modified time as ?v= */
 function av($relPath) {
     $full = __DIR__ . '/../' . $relPath;

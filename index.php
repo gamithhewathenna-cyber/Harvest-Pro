@@ -38,7 +38,7 @@ if (current_user()) { header('Location: '.post_login_redirect()); exit; }
 <body>
 
 <div class="lp-nav">
-  <div class="lp-brand"><div class="lp-brand-logo">🍃</div> <?=e(site_name())?></div>
+  <div class="lp-brand"><div class="lp-brand-logo"><?=brand_mark('🍃')?></div> <?=e(site_name())?></div>
   <div class="lp-nav-links">
     <a href="login.php" class="btn ghost">Login</a>
     <a href="register.php" class="btn">Register</a>
