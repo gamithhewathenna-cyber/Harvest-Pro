@@ -51,8 +51,6 @@ foreach($db->query("SELECT title, due_date, priority, 'Reminder' typ FROM remind
   $events[]=['title'=>$r['title'],'due'=>$r['due_date'],'type'=>'General'];
 foreach($db->query("SELECT CONCAT('Fertilizer: ',fertilizer_type) title, next_due FROM fertilizer_cycles WHERE next_due>='$today' ORDER BY next_due LIMIT 5") as $r)
   $events[]=['title'=>$r['title'],'due'=>$r['next_due'],'type'=>'Fertilizer'];
-foreach($db->query("SELECT service_name title, next_service_date nd FROM service_cycles WHERE next_service_date>='$today' ORDER BY next_service_date LIMIT 5") as $r)
-  $events[]=['title'=>$r['title'],'due'=>$r['nd'],'type'=>'Service'];
 usort($events, fn($a,$b)=>strcmp($a['due'],$b['due']));
 $events=array_slice($events,0,8);
 foreach($events as &$ev){

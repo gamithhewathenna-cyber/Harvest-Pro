@@ -2,6 +2,7 @@
 // { table, title, fields:[{name,label,type,options?,required?,col?}], columns:[{key,label,fmt?}], filters?:[] }
 const C = window.CRUD;
 let CACHE=[], LOOKUPS={};
+if(C.saveLabel){const b=document.getElementById('saveBtn'); if(b) b.textContent=C.saveLabel;}
 
 async function loadLookup(name){
   if(LOOKUPS[name]) return LOOKUPS[name];

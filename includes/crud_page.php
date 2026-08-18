@@ -22,7 +22,7 @@ require __DIR__.'/header.php';
     <div class="modal-h"><h3 id="modalTitle">Add</h3><span class="x" onclick="closeModal('crudModal')">&times;</span></div>
     <div class="modal-b"><input type="hidden" id="crudId"><div class="form-row" id="crudForm"></div></div>
     <div class="modal-f"><button class="btn gray" onclick="closeModal('crudModal')">Cancel</button>
-      <button class="btn" onclick="saveForm()">Save</button></div>
+      <button class="btn" id="saveBtn" onclick="saveForm()">Save</button></div>
   </div>
 </div>
 

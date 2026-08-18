@@ -210,19 +210,11 @@ CREATE TABLE IF NOT EXISTS clearing_cycles (
 CREATE TABLE IF NOT EXISTS service_cycles (
   id INT AUTO_INCREMENT PRIMARY KEY,
   service_name VARCHAR(120) NOT NULL,
-  asset VARCHAR(120),
-  estate_id INT NULL,
-  section_id INT NULL,
-  last_service_date DATE NULL,
-  next_service_date DATE NULL,
-  frequency VARCHAR(60),
-  cost DECIMAL(12,2) DEFAULT 0,
-  supplier VARCHAR(120),
-  notes TEXT,
+  description TEXT,
+  unit_type VARCHAR(60),
+  rate_per_unit DECIMAL(12,2) DEFAULT 0,
   status VARCHAR(40) DEFAULT 'Active',
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (estate_id) REFERENCES estates(id) ON DELETE SET NULL,
-  FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS reminders (
