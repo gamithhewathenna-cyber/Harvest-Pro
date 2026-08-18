@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/auth.php';
 require_login();
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 $u = current_user();
 $page = $page ?? '';
 $nav = [
