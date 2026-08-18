@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/api_helper.php';
 api_require_login();
 $db = db();
+$tenant = tenant_id();
 
 $range = $_GET['range'] ?? 'month';
 $estate = (int)($_GET['estate'] ?? 0);
@@ -13,7 +14,7 @@ switch ($range) {
   case 'custom': $from=$_GET['from']??$today; $to=$_GET['to']??$today; break;
   default:      $from=date('Y-m-01'); $to=date('Y-m-t'); break; // month
 }
-$eWhere = $estate ? ' AND estate_id='.$estate : '';
+$eWhere = ' AND owner_user_id='.$tenant.($estate ? ' AND estate_id='.$estate : '');
 
 // KPIs
 $kg = $db->query("SELECT COALESCE(SUM(kg),0) FROM daily_assignments WHERE work_date BETWEEN '$from' AND '$to'$eWhere")->fetchColumn();
@@ -21,8 +22,8 @@ $payrollCost = $db->query("SELECT COALESCE(SUM(cost),0) FROM daily_assignments W
 $asgCount = $db->query("SELECT COUNT(*) FROM daily_assignments WHERE work_date BETWEEN '$from' AND '$to'$eWhere")->fetchColumn();
 $exp = $db->query("SELECT COALESCE(SUM(amount),0) FROM expenses WHERE expense_date BETWEEN '$from' AND '$to'$eWhere")->fetchColumn();
 $expCount = $db->query("SELECT COUNT(*) FROM expenses WHERE expense_date BETWEEN '$from' AND '$to'$eWhere")->fetchColumn();
-$activeW = $db->query("SELECT COUNT(*) FROM employees WHERE status='Active'".($estate?" AND estate_id=$estate":''))->fetchColumn();
-$totalW = $db->query("SELECT COUNT(*) FROM employees".($estate?" WHERE estate_id=$estate":''))->fetchColumn();
+$activeW = $db->query("SELECT COUNT(*) FROM employees WHERE status='Active' AND owner_user_id=$tenant".($estate?" AND estate_id=$estate":''))->fetchColumn();
+$totalW = $db->query("SELECT COUNT(*) FROM employees WHERE owner_user_id=$tenant".($estate?" AND estate_id=$estate":''))->fetchColumn();
 
 // Monthly payroll vs expenses (selected year)
 $year = (int)($_GET['year'] ?? date('Y'));
@@ -32,8 +33,8 @@ foreach($db->query("SELECT MONTH(expense_date) m, SUM(amount) c FROM expenses WH
 
 // Harvest by section
 $sec = $db->query("SELECT s.name, COALESCE(SUM(d.kg),0) kg
-  FROM sections s LEFT JOIN daily_assignments d ON d.section_id=s.id AND d.work_date BETWEEN '$from' AND '$to'
-  ".($estate?"WHERE s.estate_id=$estate":'')."
+  FROM sections s LEFT JOIN daily_assignments d ON d.section_id=s.id AND d.work_date BETWEEN '$from' AND '$to' AND d.owner_user_id=$tenant
+  WHERE s.owner_user_id=$tenant".($estate?" AND s.estate_id=$estate":'')."
   GROUP BY s.id ORDER BY kg DESC LIMIT 12")->fetchAll();
 
 // Expense breakdown by category
@@ -47,9 +48,9 @@ $topW = $db->query("SELECT e.full_name, COALESCE(SUM(d.kg),0) kg FROM daily_assi
 
 // Upcoming events (reminders + due cycles)
 $events=[];
-foreach($db->query("SELECT title, due_date, priority, 'Reminder' typ FROM reminders WHERE status='Open' AND due_date>='$today' ORDER BY due_date LIMIT 8") as $r)
+foreach($db->query("SELECT title, due_date, priority, 'Reminder' typ FROM reminders WHERE status='Open' AND due_date>='$today' AND owner_user_id=$tenant ORDER BY due_date LIMIT 8") as $r)
   $events[]=['title'=>$r['title'],'due'=>$r['due_date'],'type'=>'General'];
-foreach($db->query("SELECT CONCAT('Fertilizer: ',fertilizer_type) title, next_due FROM fertilizer_cycles WHERE next_due>='$today' ORDER BY next_due LIMIT 5") as $r)
+foreach($db->query("SELECT CONCAT('Fertilizer: ',fertilizer_type) title, next_due FROM fertilizer_cycles WHERE next_due>='$today' AND owner_user_id=$tenant ORDER BY next_due LIMIT 5") as $r)
   $events[]=['title'=>$r['title'],'due'=>$r['next_due'],'type'=>'Fertilizer'];
 usort($events, fn($a,$b)=>strcmp($a['due'],$b['due']));
 $events=array_slice($events,0,8);
@@ -60,7 +61,7 @@ foreach($events as &$ev){
 }
 
 // extra analytics
-$acres = $db->query("SELECT COALESCE(SUM(tea_acres),0) FROM estates".($estate?" WHERE id=$estate":''))->fetchColumn();
+$acres = $db->query("SELECT COALESCE(SUM(tea_acres),0) FROM estates WHERE owner_user_id=$tenant".($estate?" AND id=$estate":''))->fetchColumn();
 $costPerKg = $kg>0 ? $payrollCost/$kg : 0;
 $avgPerWorker = $activeW>0 ? $kg/$activeW : 0;
 

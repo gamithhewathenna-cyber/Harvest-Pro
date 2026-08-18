@@ -17,6 +17,16 @@ function current_user() {
     return $_SESSION['user'] ?? null;
 }
 
+/** Builds the session user array from a `users` row and logs them in */
+function start_user_session($row) {
+    $_SESSION['user'] = [
+        'id'=>$row['id'],'name'=>$row['name'],'email'=>$row['email'],
+        'role'=>$row['role'],'estates'=>array_filter(explode(',', $row['assigned_estate_ids'] ?? '')),
+        'owner_user_id'=>$row['owner_user_id'] ?? null,
+        'is_platform_admin'=>(bool)($row['is_platform_admin'] ?? false),
+    ];
+}
+
 function require_login() {
     if (!current_user()) {
         header('Location: login.php');
@@ -38,6 +48,17 @@ function can_approve() {
 }
 function can_admin() {
     return in_array(user_role(), ['Owner','Administrator'], true);
+}
+
+/** The id that owns/scopes all of this user's data (self for tenant roots, else their Owner's id) */
+function tenant_id() {
+    $u = current_user();
+    return $u ? (int)($u['owner_user_id'] ?? $u['id']) : 0;
+}
+/** Platform operator (manages coupons) - distinct from per-tenant Owner/Administrator roles */
+function platform_admin() {
+    $u = current_user();
+    return (bool)($u['is_platform_admin'] ?? false);
 }
 
 /** Cache-busting asset URL: appends the file's last-modified time as ?v= */

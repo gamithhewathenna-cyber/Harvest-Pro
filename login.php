@@ -10,10 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $st->execute([$email]);
     $row = $st->fetch();
     if ($row && password_verify($pass, $row['password_hash'])) {
-        $_SESSION['user'] = [
-            'id'=>$row['id'],'name'=>$row['name'],'email'=>$row['email'],
-            'role'=>$row['role'],'estates'=>array_filter(explode(',', $row['assigned_estate_ids'] ?? ''))
-        ];
+        start_user_session($row);
         db()->prepare('UPDATE users SET last_login=NOW() WHERE id=?')->execute([$row['id']]);
         header('Location: dashboard.php'); exit;
     }
@@ -28,9 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h1>Tea Estate</h1><p>Management System</p>
   <?php if($err): ?><div class="badge b-red" style="display:block;padding:10px;margin-bottom:14px;text-align:center"><?=e($err)?></div><?php endif; ?>
   <form method="post">
-    <div class="field"><label>Email</label><input type="email" name="email" required autofocus value="admin@estate.local"></div>
+    <div class="field"><label>Email</label><input type="email" name="email" required autofocus></div>
     <div class="field"><label>Password</label><input type="password" name="password" required value=""></div>
     <button class="btn" style="width:100%;justify-content:center;padding:12px">Sign In</button>
   </form>
-  <p style="margin-top:18px;font-size:12px">Default: admin@estate.local / admin123 (change after login)</p>
+  <p style="margin-top:18px;font-size:13px;text-align:center">New here? <a href="register.php">Register with a coupon code</a></p>
 </div></div></body></html>

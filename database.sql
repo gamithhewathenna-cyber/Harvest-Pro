@@ -12,15 +12,30 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('Owner','Administrator','Estate Manager','Supervisor','Accountant','Viewer') NOT NULL DEFAULT 'Viewer',
   assigned_estate_ids VARCHAR(255) NULL COMMENT 'comma-separated estate ids',
+  owner_user_id INT NULL COMMENT 'NULL = tenant root (self); otherwise the Owner this sub-user belongs to',
+  is_platform_admin TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'can manage coupons; not a per-tenant role',
   status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active',
   avatar VARCHAR(255) NULL,
   last_login DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_users_role (role)
+  INDEX idx_users_role (role),
+  INDEX idx_users_owner (owner_user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS coupons (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(40) NOT NULL UNIQUE,
+  status ENUM('Unused','Used') NOT NULL DEFAULT 'Unused',
+  used_by_user_id INT NULL,
+  used_for_estate_id INT NULL,
+  used_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_coupon_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS estates (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   name VARCHAR(160) NOT NULL,
   code VARCHAR(40) NOT NULL,
   location VARCHAR(200),
@@ -30,11 +45,13 @@ CREATE TABLE IF NOT EXISTS estates (
   manager VARCHAR(120),
   status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_estates_code (code)
+  INDEX idx_estates_code (code),
+  INDEX idx_estates_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS sections (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   estate_id INT NOT NULL,
   name VARCHAR(120) NOT NULL,
   code VARCHAR(40),
@@ -46,7 +63,8 @@ CREATE TABLE IF NOT EXISTS sections (
   notes TEXT,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (estate_id) REFERENCES estates(id) ON DELETE CASCADE,
-  INDEX idx_sections_estate (estate_id)
+  INDEX idx_sections_estate (estate_id),
+  INDEX idx_sections_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tea_clones (
@@ -65,6 +83,7 @@ CREATE TABLE IF NOT EXISTS assignment_types (
 
 CREATE TABLE IF NOT EXISTS employees (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   emp_code VARCHAR(40) NOT NULL,
   full_name VARCHAR(160) NOT NULL,
   nic VARCHAR(40),
@@ -88,11 +107,13 @@ CREATE TABLE IF NOT EXISTS employees (
   UNIQUE KEY uq_emp_code (emp_code),
   FOREIGN KEY (estate_id) REFERENCES estates(id) ON DELETE SET NULL,
   FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL,
-  INDEX idx_emp_estate (estate_id)
+  INDEX idx_emp_estate (estate_id),
+  INDEX idx_emp_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS daily_assignments (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   work_date DATE NOT NULL,
   estate_id INT NOT NULL,
   section_id INT NULL,
@@ -116,7 +137,8 @@ CREATE TABLE IF NOT EXISTS daily_assignments (
   INDEX idx_asg_date (work_date),
   INDEX idx_asg_estate (estate_id),
   INDEX idx_asg_section (section_id),
-  INDEX idx_asg_emp (employee_id)
+  INDEX idx_asg_emp (employee_id),
+  INDEX idx_asg_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS expense_categories (
@@ -126,6 +148,7 @@ CREATE TABLE IF NOT EXISTS expense_categories (
 
 CREATE TABLE IF NOT EXISTS expenses (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   expense_date DATE NOT NULL,
   estate_id INT NOT NULL,
   section_id INT NULL,
@@ -145,11 +168,13 @@ CREATE TABLE IF NOT EXISTS expenses (
   FOREIGN KEY (estate_id) REFERENCES estates(id) ON DELETE CASCADE,
   FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL,
   INDEX idx_exp_date (expense_date),
-  INDEX idx_exp_estate (estate_id)
+  INDEX idx_exp_estate (estate_id),
+  INDEX idx_exp_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS payroll (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   employee_id INT NOT NULL,
   estate_id INT NULL,
   period_from DATE NOT NULL,
@@ -173,11 +198,13 @@ CREATE TABLE IF NOT EXISTS payroll (
   notes TEXT,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-  INDEX idx_pay_emp (employee_id)
+  INDEX idx_pay_emp (employee_id),
+  INDEX idx_pay_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS fertilizer_cycles (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   estate_id INT NOT NULL,
   section_id INT NULL,
   fertilizer_type VARCHAR(120),
@@ -190,11 +217,13 @@ CREATE TABLE IF NOT EXISTS fertilizer_cycles (
   notes TEXT,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (estate_id) REFERENCES estates(id) ON DELETE CASCADE,
-  FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL
+  FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL,
+  INDEX idx_fert_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS clearing_cycles (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   estate_id INT NOT NULL,
   section_id INT NULL,
   date_cleared DATE NULL,
@@ -204,21 +233,25 @@ CREATE TABLE IF NOT EXISTS clearing_cycles (
   notes TEXT,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (estate_id) REFERENCES estates(id) ON DELETE CASCADE,
-  FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL
+  FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL,
+  INDEX idx_clear_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS service_cycles (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   service_name VARCHAR(120) NOT NULL,
   description TEXT,
   unit_type VARCHAR(60),
   rate_per_unit DECIMAL(12,2) DEFAULT 0,
   status VARCHAR(40) DEFAULT 'Active',
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_svc_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS reminders (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
   title VARCHAR(160) NOT NULL,
   description TEXT,
   type VARCHAR(60),
@@ -231,19 +264,22 @@ CREATE TABLE IF NOT EXISTS reminders (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (estate_id) REFERENCES estates(id) ON DELETE SET NULL,
   FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL,
-  INDEX idx_rem_due (due_date)
+  INDEX idx_rem_due (due_date),
+  INDEX idx_rem_owner (owner_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS settings (
-  skey VARCHAR(80) PRIMARY KEY,
-  svalue VARCHAR(255)
+  owner_user_id INT NOT NULL,
+  skey VARCHAR(80) NOT NULL,
+  svalue VARCHAR(255),
+  PRIMARY KEY (owner_user_id, skey)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS=1;
 
 -- Seed data
-INSERT INTO users (name,email,phone,password_hash,role,status)
-VALUES ('Estate Owner','admin@estate.local','0000000000','__HASH__','Owner','Active');
+INSERT INTO users (name,email,phone,password_hash,role,is_platform_admin,status)
+VALUES ('Estate Owner','admin@estate.local','0000000000','__HASH__','Owner',1,'Active');
 
 INSERT INTO assignment_types (name,is_plucking) VALUES
 ('Tea Plucking',1),('Clearing',0),('Fertilizing',0),('Pruning',0),
@@ -258,4 +294,5 @@ INSERT INTO tea_clones (name,code,description) VALUES
 ('TRI 2026','TRI2026','High yield clone'),
 ('TRI 4049','TRI4049','Drought tolerant clone');
 
-INSERT INTO settings (skey,svalue) VALUES ('tea_price_per_kg','300');
+INSERT INTO settings (owner_user_id,skey,svalue)
+SELECT id,'tea_price_per_kg','300' FROM users WHERE email='admin@estate.local';

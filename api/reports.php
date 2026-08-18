@@ -2,12 +2,13 @@
 require_once __DIR__ . '/../includes/api_helper.php';
 api_require_login();
 $db = db();
+$tenant = tenant_id();
 $type = $_GET['type'] ?? '';
 $from = $_GET['from'] ?? date('Y-m-01');
 $to   = $_GET['to']   ?? date('Y-m-t');
 $eid  = (int)($_GET['estate_id'] ?? 0);
-$eW = $eid ? " AND d.estate_id=$eid" : '';
-$eWe = $eid ? " AND estate_id=$eid" : '';
+$eW = " AND d.owner_user_id=$tenant".($eid ? " AND d.estate_id=$eid" : '');
+$eWe = " AND owner_user_id=$tenant".($eid ? " AND estate_id=$eid" : '');
 $export = $_GET['export'] ?? '';
 
 try {
@@ -36,8 +37,8 @@ try {
       $title='Section Performance';
       $cols=['Section','Total KG','Labour Cost','Cost per KG'];
       $st=$db->prepare("SELECT s.name, SUM(d.kg) kg, SUM(d.cost) cost FROM sections s
-        LEFT JOIN daily_assignments d ON d.section_id=s.id AND d.work_date BETWEEN ? AND ?
-        ".($eid?"WHERE s.estate_id=$eid":'')." GROUP BY s.id ORDER BY kg DESC");
+        LEFT JOIN daily_assignments d ON d.section_id=s.id AND d.work_date BETWEEN ? AND ? AND d.owner_user_id=$tenant
+        WHERE s.owner_user_id=$tenant".($eid?" AND s.estate_id=$eid":'')." GROUP BY s.id ORDER BY kg DESC");
       $st->execute([$from,$to]);
       foreach($st as $r){$cpk=$r['kg']>0?$r['cost']/$r['kg']:0;
         $rows[]=[$r['name'],number_format($r['kg'],2),number_format($r['cost'],2),number_format($cpk,2)];}
@@ -54,13 +55,13 @@ try {
       $title='Payroll Report';
       $cols=['Worker','Period','Gross','Deductions','Net','Status'];
       $st=$db->query("SELECT e.full_name, pr.period_from, pr.period_to, pr.gross, pr.deductions, pr.net, pr.status
-        FROM payroll pr JOIN employees e ON e.id=pr.employee_id ORDER BY pr.id DESC");
+        FROM payroll pr JOIN employees e ON e.id=pr.employee_id WHERE pr.owner_user_id=$tenant ORDER BY pr.id DESC");
       foreach($st as $r) $rows[]=[$r['full_name'],$r['period_from'].' - '.$r['period_to'],
         number_format($r['gross'],2),number_format($r['deductions'],2),number_format($r['net'],2),$r['status']];
       break;
     case 'profit':
       $title='Profitability Report';
-      $price=(float)($db->query("SELECT svalue FROM settings WHERE skey='tea_price_per_kg'")->fetchColumn() ?: 0);
+      $price=(float)($db->query("SELECT svalue FROM settings WHERE skey='tea_price_per_kg' AND owner_user_id=$tenant")->fetchColumn() ?: 0);
       if(isset($_GET['price']) && $_GET['price']!=='') $price=(float)$_GET['price'];
       $kg=$db->prepare("SELECT COALESCE(SUM(kg),0) FROM daily_assignments d WHERE work_date BETWEEN ? AND ?$eW"); $kg->execute([$from,$to]); $kg=(float)$kg->fetchColumn();
       $pay=$db->prepare("SELECT COALESCE(SUM(cost),0) FROM daily_assignments d WHERE work_date BETWEEN ? AND ?$eW"); $pay->execute([$from,$to]); $pay=(float)$pay->fetchColumn();

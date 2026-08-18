@@ -17,6 +17,7 @@ $nav = [
   ['reports.php','Reports','chart'],
   ['payroll.php','Payroll','cash'],
 ];
+if (platform_admin()) $nav[] = ['coupons.php','Coupons','tag'];
 function icon($n){
   $p = [
    'grid'=>'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
@@ -29,6 +30,7 @@ function icon($n){
    'bell'=>'M12 3a5 5 0 0 0-5 5v4l-2 3h14l-2-3V8a5 5 0 0 0-5-5zM10 20a2 2 0 0 0 4 0',
    'chart'=>'M4 20V10M10 20V4M16 20v-7M22 20H2',
    'cash'=>'M2 6h20v12H2zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+   'tag'=>'M20.5 12.8 12.7 20.6a2 2 0 0 1-2.83 0l-6.5-6.5a2 2 0 0 1 0-2.83L11.2 3.5H19a1.5 1.5 0 0 1 1.5 1.5v7.8zM8 8h.01',
   ];
   return '<svg viewBox="0 0 24 24" class="ic"><path d="'.$p[$n].'"/></svg>';
 }

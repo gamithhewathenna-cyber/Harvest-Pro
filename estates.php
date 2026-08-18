@@ -6,6 +6,7 @@ $configJs=json_encode([
   'table'=>'estates','title'=>'Estate',
   'columns'=>[['key'=>'name'],['key'=>'code'],['key'=>'location'],['key'=>'tea_acres','fmt'=>'num','right'=>true],['key'=>'manager'],['key'=>'status','fmt'=>'badge']],
   'fields'=>[
+    ['name'=>'coupon_code','label'=>'Coupon Code','required'=>true,'addOnly'=>true,'placeholder'=>'e.g. TEA-XXXX-XXXX'],
     ['name'=>'name','label'=>'Estate Name','required'=>true],
     ['name'=>'code','label'=>'Estate Code','required'=>true],
     ['name'=>'location','label'=>'Location'],

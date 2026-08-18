@@ -13,6 +13,7 @@ async function loadLookup(name){
 async function buildForm(row){
   const f=document.getElementById('crudForm'); f.innerHTML='';
   for(const fd of C.fields){
+    if(fd.addOnly && row) continue; // only relevant when adding a new record
     const val=row?(row[fd.name]??''):(fd.default??'');
     let input='';
     if(fd.type==='select'){
@@ -29,7 +30,7 @@ async function buildForm(row){
     } else if(fd.type==='textarea'){
       input=`<textarea name="${fd.name}" rows="2">${esc(val)}</textarea>`;
     } else {
-      input=`<input type="${fd.type||'text'}" name="${fd.name}" value="${esc(val)}" ${fd.required?'required':''} ${fd.step?'step='+fd.step:''}>`;
+      input=`<input type="${fd.type||'text'}" name="${fd.name}" value="${esc(val)}" ${fd.required?'required':''} ${fd.step?'step='+fd.step:''} ${fd.placeholder?'placeholder="'+esc(fd.placeholder)+'"':''}>`;
     }
     f.insertAdjacentHTML('beforeend',`<div class="field ${fd.col||''}"><label>${esc(fd.label)}${fd.required?' *':''}</label>${input}</div>`);
   }
