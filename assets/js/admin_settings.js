@@ -1,3 +1,31 @@
+async function changeEmail(){
+  const new_email=document.getElementById('newEmail').value.trim();
+  const current_password=document.getElementById('emailCurPw').value;
+  if(!new_email||!current_password){toast('Enter a new email and your current password',true);return;}
+  try{
+    const j=await api('api/profile.php?action=change_email',{new_email,current_password});
+    toast('Email updated');
+    document.getElementById('curEmail').textContent=j.email;
+    document.getElementById('newEmail').value='';
+    document.getElementById('emailCurPw').value='';
+  }catch(e){toast(e.message,true);}
+}
+
+async function changeAdminPw(){
+  const current_password=document.getElementById('pwCurPw').value;
+  const new_password=document.getElementById('pwNewPw').value;
+  const confirm=document.getElementById('pwConfPw').value;
+  if(!current_password||new_password.length<6){toast('Enter your current password and a new password (6+ chars)',true);return;}
+  if(new_password!==confirm){toast('New passwords do not match',true);return;}
+  try{
+    await api('api/profile.php?action=change_password',{current_password,new_password});
+    toast('Password updated');
+    document.getElementById('pwCurPw').value='';
+    document.getElementById('pwNewPw').value='';
+    document.getElementById('pwConfPw').value='';
+  }catch(e){toast(e.message,true);}
+}
+
 (async()=>{
   try{
     const j=await api('api/admin_settings.php?action=get');

@@ -5,6 +5,22 @@ require __DIR__.'/includes/admin_header.php';
 <div class="page-head"><h2>Settings</h2></div>
 
 <div class="card mb"><div class="card-pad">
+  <h3 style="margin-top:0">My Admin Account</h3>
+  <p style="font-size:12px;color:var(--muted);margin-top:-6px">The login used for this platform admin account (<b id="curEmail"><?=e(current_user()['email'])?></b>).</p>
+  <div class="form-row3">
+    <div class="field"><label>New Email</label><input id="newEmail" type="email"></div>
+    <div class="field"><label>Current Password</label><input id="emailCurPw" type="password"></div>
+    <div class="field" style="display:flex;align-items:flex-end"><button class="btn" onclick="changeEmail()">Update Email</button></div>
+  </div>
+  <div class="form-row3" style="margin-top:16px">
+    <div class="field"><label>Current Password</label><input id="pwCurPw" type="password"></div>
+    <div class="field"><label>New Password</label><input id="pwNewPw" type="password" placeholder="min 6 chars"></div>
+    <div class="field"><label>Confirm New Password</label><input id="pwConfPw" type="password"></div>
+  </div>
+  <button class="btn" style="margin-top:12px" onclick="changeAdminPw()">Update Password</button>
+</div></div>
+
+<div class="card mb"><div class="card-pad">
   <h3 style="margin-top:0">Site</h3>
   <div class="form-row">
     <div class="field"><label>Site Name</label><input id="siteName" type="text" placeholder="<?=e(APP_NAME)?>"></div>
