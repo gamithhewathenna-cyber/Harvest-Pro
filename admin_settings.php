@@ -1,12 +1,15 @@
 <?php
 $title='Settings'; $page='admin_settings.php'; $pageScript='assets/js/admin_settings.js';
 require __DIR__.'/includes/admin_header.php';
+$curEmail = db()->prepare('SELECT email FROM users WHERE id=?');
+$curEmail->execute([current_user()['id']]);
+$curEmail = $curEmail->fetchColumn();
 ?>
 <div class="page-head"><h2>Settings</h2></div>
 
 <div class="card mb"><div class="card-pad">
   <h3 style="margin-top:0">My Admin Account</h3>
-  <p style="font-size:12px;color:var(--muted);margin-top:-6px">The login used for this platform admin account (<b id="curEmail"><?=e(current_user()['email'])?></b>).</p>
+  <p style="font-size:12px;color:var(--muted);margin-top:-6px">The login used for this platform admin account (<b id="curEmail"><?=e($curEmail)?></b>).</p>
   <div class="form-row3">
     <div class="field"><label>New Email</label><input id="newEmail" type="email"></div>
     <div class="field"><label>Current Password</label><input id="emailCurPw" type="password"></div>
