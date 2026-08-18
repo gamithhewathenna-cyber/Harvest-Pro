@@ -12,25 +12,29 @@ function switchTab(t){
 }
 
 async function init(){
-  const est=await api('api/lookups.php?what=estates');
-  ['bEstate','fEstate'].forEach(id=>{const s=document.getElementById(id);
-    est.rows.forEach(r=>s.insertAdjacentHTML('beforeend',`<option value="${r.id}">${esc(r.name)}</option>`));});
-  const t=await api('api/lookups.php?what=assignment_types');
-  TYPES=t.rows;
-  const bt=document.getElementById('bType');
-  TYPES.forEach(r=>bt.insertAdjacentHTML('beforeend',`<option value="${r.id}" data-p="${r.is_plucking}">${esc(r.name)}</option>`));
-  if(est.rows.length) loadBulkContext();
+  try{
+    const est=await api('api/lookups.php?what=estates');
+    ['bEstate','fEstate'].forEach(id=>{const s=document.getElementById(id);
+      est.rows.forEach(r=>s.insertAdjacentHTML('beforeend',`<option value="${r.id}">${esc(r.name)}</option>`));});
+    const t=await api('api/lookups.php?what=assignment_types');
+    TYPES=t.rows;
+    const bt=document.getElementById('bType');
+    TYPES.forEach(r=>bt.insertAdjacentHTML('beforeend',`<option value="${r.id}" data-p="${r.is_plucking}">${esc(r.name)}</option>`));
+    if(est.rows.length) loadBulkContext();
+  }catch(e){ toast(e.message,true); }
 }
 function isPluck(){const o=document.getElementById('bType').selectedOptions[0];return o&&o.dataset.p==='1';}
 function onTypeChange(){document.getElementById('thKg').textContent=isPluck()?'KG':'Units';buildRows();}
 
 async function loadBulkContext(){
   const eid=document.getElementById('bEstate').value;
-  const sec=await api('api/lookups.php?what=sections&estate_id='+eid);
-  const ss=document.getElementById('bSection'); ss.innerHTML='<option value="">—</option>';
-  sec.rows.forEach(r=>ss.insertAdjacentHTML('beforeend',`<option value="${r.id}">${esc(r.name)}</option>`));
-  const w=await api('api/lookups.php?what=employees&estate_id='+eid);
-  WORKERS=w.rows; buildRows();
+  try{
+    const sec=await api('api/lookups.php?what=sections&estate_id='+eid);
+    const ss=document.getElementById('bSection'); ss.innerHTML='<option value="">—</option>';
+    sec.rows.forEach(r=>ss.insertAdjacentHTML('beforeend',`<option value="${r.id}">${esc(r.name)}</option>`));
+    const w=await api('api/lookups.php?what=employees&estate_id='+eid);
+    WORKERS=w.rows; buildRows();
+  }catch(e){ toast(e.message,true); }
 }
 function buildRows(){
   const b=document.getElementById('bulkBody');
@@ -83,8 +87,10 @@ async function saveBulk(){
 
 async function loadList(){
   const q=new URLSearchParams({from:document.getElementById('fFrom').value,to:document.getElementById('fTo').value,estate_id:document.getElementById('fEstate').value});
-  const j=await api('api/assignments.php?action=list&'+q);
   const b=document.getElementById('listBody');
+  let j;
+  try{ j=await api('api/assignments.php?action=list&'+q); }
+  catch(e){ b.innerHTML=`<tr><td colspan="7" class="empty">Couldn't load data: ${esc(e.message)} — <a href="javascript:loadList()">Retry</a></td></tr>`; return; }
   b.innerHTML=j.rows.length?j.rows.map(r=>`<tr>
     <td>${r.work_date}</td><td><strong>${esc(r.emp_code)}</strong> ${esc(r.full_name)}</td>
     <td>${esc(r.estate_name||'')}${r.section_name?' / '+esc(r.section_name):''}</td>

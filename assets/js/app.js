@@ -4,13 +4,22 @@ function toast(msg, err){
   t.textContent=msg; t.className='toast show'+(err?' err':'');
   setTimeout(()=>t.className='toast',2600);
 }
-async function api(url, data){
-  const opt={headers:{'Content-Type':'application/json'}};
+async function api(url, data, timeoutMs){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(), timeoutMs||15000);
+  const opt={headers:{'Content-Type':'application/json'}, signal:ctrl.signal};
   if(data!==undefined){opt.method='POST';opt.body=JSON.stringify({...data,csrf:window.CSRF});}
-  const r=await fetch(url,opt);
-  const j=await r.json();
-  if(!j.ok) throw new Error(j.error||'Request failed');
-  return j;
+  try{
+    const r=await fetch(url,opt);
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||'Request failed');
+    return j;
+  }catch(e){
+    if(e.name==='AbortError') throw new Error('Request timed out. Check your connection and try again.');
+    throw e;
+  }finally{
+    clearTimeout(timer);
+  }
 }
 function money(n){return 'LKR '+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmt(n){return Number(n||0).toLocaleString();}

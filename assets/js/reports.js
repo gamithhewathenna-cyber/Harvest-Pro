@@ -1,9 +1,11 @@
 document.getElementById('rFrom').value=new Date().toISOString().slice(0,8)+'01';
 document.getElementById('rTo').value=new Date().toISOString().slice(0,10);
 document.getElementById('rType').onchange=e=>{document.getElementById('priceWrap').style.display=e.target.value==='profit'?'':'none';};
-(async()=>{const j=await api('api/lookups.php?what=estates');
+(async()=>{try{
+  const j=await api('api/lookups.php?what=estates');
   const s=document.getElementById('rEstate');
-  j.rows.forEach(r=>s.insertAdjacentHTML('beforeend',`<option value="${r.id}">${esc(r.name)}</option>`));})();
+  j.rows.forEach(r=>s.insertAdjacentHTML('beforeend',`<option value="${r.id}">${esc(r.name)}</option>`));
+}catch(e){toast(e.message,true);}})();
 
 function q(){
   return new URLSearchParams({type:document.getElementById('rType').value,
@@ -11,7 +13,8 @@ function q(){
     estate_id:document.getElementById('rEstate').value,price:document.getElementById('rPrice').value||''});
 }
 async function runReport(){
-  const j=await api('api/reports.php?'+q());
+  let j;
+  try{ j=await api('api/reports.php?'+q()); }catch(e){ toast(e.message,true); return; }
   document.getElementById('reportHeader').style.display='';
   document.getElementById('rTitle').textContent=j.title;
   document.getElementById('rMeta').textContent=`Range: ${j.from} to ${j.to}`;

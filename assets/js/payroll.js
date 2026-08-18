@@ -10,13 +10,16 @@ function pTab(t){
   document.getElementById('tabHist').className=t==='hist'?'btn':'btn gray';
   if(t==='hist') loadHist();
 }
-(async()=>{const j=await api('api/lookups.php?what=estates');
+(async()=>{try{
+  const j=await api('api/lookups.php?what=estates');
   const s=document.getElementById('pEstate');
-  j.rows.forEach(r=>s.insertAdjacentHTML('beforeend',`<option value="${r.id}">${esc(r.name)}</option>`));})();
+  j.rows.forEach(r=>s.insertAdjacentHTML('beforeend',`<option value="${r.id}">${esc(r.name)}</option>`));
+}catch(e){toast(e.message,true);}})();
 
 async function preview(){
   const q=new URLSearchParams({from:document.getElementById('pFrom').value,to:document.getElementById('pTo').value,estate_id:document.getElementById('pEstate').value});
-  const j=await api('api/payroll.php?action=preview&'+q);
+  let j;
+  try{ j=await api('api/payroll.php?action=preview&'+q); }catch(e){ toast(e.message,true); return; }
   PV=j.rows;
   const b=document.getElementById('pvBody');
   if(!j.rows.length){b.innerHTML='<tr><td colspan="9" class="empty">No assignments in this period</td></tr>';document.getElementById('genBtn').style.display='none';return;}
@@ -37,8 +40,10 @@ async function generate(){
   }catch(e){toast(e.message,true);}
 }
 async function loadHist(){
-  const j=await api('api/payroll.php?action=list');
   const b=document.getElementById('histBody');
+  let j;
+  try{ j=await api('api/payroll.php?action=list'); }
+  catch(e){ b.innerHTML=`<tr><td colspan="7" class="empty">Couldn't load data: ${esc(e.message)} — <a href="javascript:loadHist()">Retry</a></td></tr>`; return; }
   const m={Draft:'b-gray',Calculated:'b-amber',Approved:'b-green',Paid:'b-blue'};
   b.innerHTML=j.rows.length?j.rows.map(r=>`<tr>
     <td><strong>${esc(r.emp_code)}</strong> ${esc(r.full_name)}</td>

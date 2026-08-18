@@ -39,8 +39,10 @@ async function buildForm(row){
 
 async function openAdd(){ await buildForm(null); openModal('crudModal'); }
 async function openEdit(id){
-  const j=await api(`api/crud.php?table=${C.table}&action=get&id=${id}`);
-  await buildForm(j.row); openModal('crudModal');
+  try{
+    const j=await api(`api/crud.php?table=${C.table}&action=get&id=${id}`);
+    await buildForm(j.row); openModal('crudModal');
+  }catch(e){ toast(e.message,true); }
 }
 async function saveForm(){
   const f=document.getElementById('crudForm');
@@ -64,11 +66,17 @@ async function delRow(id){
 }
 
 async function loadRows(){
+  const b=document.getElementById('crudBody');
   const params=new URLSearchParams({table:C.table,action:'list'});
   if(C.getFilters) Object.entries(C.getFilters()).forEach(([k,v])=>v&&params.set(k,v));
-  const j=await api('api/crud.php?'+params);
+  let j;
+  try{
+    j=await api('api/crud.php?'+params);
+  }catch(e){
+    b.innerHTML=`<tr><td colspan="${C.columns.length+1}" class="empty">Couldn't load data: ${esc(e.message)} — <a href="javascript:loadRows()">Retry</a></td></tr>`;
+    return;
+  }
   CACHE=j.rows;
-  const b=document.getElementById('crudBody');
   if(!j.rows.length){b.innerHTML=`<tr><td colspan="${C.columns.length+1}" class="empty">No records yet. Click "Add ${esc(C.title)}".</td></tr>`;return;}
   b.innerHTML=j.rows.map(r=>'<tr>'+C.columns.map(c=>{
     let v=r[c.key];
