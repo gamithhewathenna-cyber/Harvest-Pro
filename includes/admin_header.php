@@ -12,7 +12,6 @@ $nav = [
   ['admin_tickets.php','Support Tickets','support'],
   ['coupons.php','Coupons','tag'],
   ['admin_settings.php','Settings','settings'],
-  ['admin_email.php','Email Config','mail'],
 ];
 ?>
 <!DOCTYPE html>
