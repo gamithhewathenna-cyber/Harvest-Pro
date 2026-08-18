@@ -12,6 +12,7 @@ define('DB_PASS', '');                // your cPanel database password
 // --------------------------------------------
 
 define('APP_NAME', 'Tea Estate Management');
+define('APP_DOMAIN', 'localhost');    // your production domain, e.g. app.example.com (used for the session cookie)
 define('CURRENCY', 'LKR');
 
 date_default_timezone_set('Asia/Colombo');
