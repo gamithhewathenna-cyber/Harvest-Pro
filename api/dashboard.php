@@ -16,6 +16,8 @@ switch ($range) {
 }
 $eWhere = ' AND owner_user_id='.$tenant.($estate ? ' AND estate_id='.$estate : '');
 
+try {
+
 // KPIs
 $kg = $db->query("SELECT COALESCE(SUM(kg),0) FROM daily_assignments WHERE work_date BETWEEN '$from' AND '$to'$eWhere")->fetchColumn();
 $payrollCost = $db->query("SELECT COALESCE(SUM(cost),0) FROM daily_assignments WHERE work_date BETWEEN '$from' AND '$to'$eWhere")->fetchColumn();
@@ -76,3 +78,5 @@ ok([
   'chart'=>['payroll'=>$payM,'expenses'=>$expM,'year'=>$year],
   'sections'=>$sec,'expense_cat'=>$expCat,'top_workers'=>$topW,'events'=>$events
 ]);
+
+} catch (Throwable $e) { fail($e->getMessage()); }
