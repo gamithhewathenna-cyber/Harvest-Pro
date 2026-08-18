@@ -12,7 +12,7 @@ $configJs=json_encode([
     ['name'=>'email','label'=>'Email','type'=>'email','required'=>true],
     ['name'=>'phone','label'=>'Phone'],
     ['name'=>'role','label'=>'Role','type'=>'select','options'=>['Owner','Administrator','Estate Manager','Supervisor','Accountant','Viewer']],
-    ['name'=>'assigned_estate_id','label'=>'Assigned Estate','type'=>'select','lookup'=>'estates','allowEmpty'=>true],
+    ['name'=>'assigned_estate_ids','label'=>'Assigned Estate(s)','type'=>'multiselect','lookup'=>'estates'],
     ['name'=>'status','label'=>'Status','type'=>'select','options'=>['Active','Inactive']],
   ]
 ]);

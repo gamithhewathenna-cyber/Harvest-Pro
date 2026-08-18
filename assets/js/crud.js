@@ -20,6 +20,12 @@ async function buildForm(row){
       if(fd.lookup) opts=(await loadLookup(fd.lookup)).map(r=>({v:r.id,t:(r.emp_code?r.emp_code+' - ':'')+(r.full_name||r.name)}));
       input=`<select name="${fd.name}" ${fd.required?'required':''}>${fd.allowEmpty?'<option value="">—</option>':''}`+
         opts.map(o=>{const v=o.v??o,t=o.t??o;return `<option value="${esc(v)}" ${String(val)===String(v)?'selected':''}>${esc(t)}</option>`}).join('')+'</select>';
+    } else if(fd.type==='multiselect'){
+      let opts=fd.options||[];
+      if(fd.lookup) opts=(await loadLookup(fd.lookup)).map(r=>({v:r.id,t:(r.emp_code?r.emp_code+' - ':'')+(r.full_name||r.name)}));
+      const selected=String(val).split(',').filter(Boolean);
+      input=`<select name="${fd.name}" multiple size="${Math.min(6,Math.max(3,opts.length))}">`+
+        opts.map(o=>{const v=o.v??o,t=o.t??o;return `<option value="${esc(v)}" ${selected.includes(String(v))?'selected':''}>${esc(t)}</option>`}).join('')+'</select>';
     } else if(fd.type==='textarea'){
       input=`<textarea name="${fd.name}" rows="2">${esc(val)}</textarea>`;
     } else {
@@ -41,8 +47,9 @@ async function saveForm(){
   const data={id:document.getElementById('crudId').value||''};
   let valid=true;
   f.querySelectorAll('input,select,textarea').forEach(el=>{
-    if(el.required && !el.value){el.style.borderColor='#c0392b';valid=false;} else el.style.borderColor='';
-    data[el.name]=el.value;
+    const v=el.multiple?Array.from(el.selectedOptions).map(o=>o.value).join(','):el.value;
+    if(el.required && !v){el.style.borderColor='#c0392b';valid=false;} else el.style.borderColor='';
+    data[el.name]=v;
   });
   if(!valid){toast('Please fill required fields',true);return;}
   try{

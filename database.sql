@@ -10,13 +10,12 @@ CREATE TABLE IF NOT EXISTS users (
   phone VARCHAR(40),
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('Owner','Administrator','Estate Manager','Supervisor','Accountant','Viewer') NOT NULL DEFAULT 'Viewer',
-  assigned_estate_id INT NULL,
+  assigned_estate_ids VARCHAR(255) NULL COMMENT 'comma-separated estate ids',
   status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active',
   avatar VARCHAR(255) NULL,
   last_login DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_users_role (role),
-  INDEX idx_users_estate (assigned_estate_id)
+  INDEX idx_users_role (role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS estates (

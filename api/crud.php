@@ -14,7 +14,7 @@ $TABLES = [
   'fertilizer_cycles'=>['estate_id','section_id','fertilizer_type','date_applied','next_due','quantity','cost','supplier','applied_by','notes'],
   'clearing_cycles'=>['estate_id','section_id','date_cleared','next_due','assigned_workers','cost','notes'],
   'tea_clones'=>['name','code','description'],
-  'users'=>['name','email','phone','role','assigned_estate_id','status'],
+  'users'=>['name','email','phone','role','assigned_estate_ids','status'],
 ];
 
 $table = $_GET['table'] ?? '';

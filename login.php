@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($row && password_verify($pass, $row['password_hash'])) {
         $_SESSION['user'] = [
             'id'=>$row['id'],'name'=>$row['name'],'email'=>$row['email'],
-            'role'=>$row['role'],'estate'=>$row['assigned_estate_id']
+            'role'=>$row['role'],'estates'=>array_filter(explode(',', $row['assigned_estate_ids'] ?? ''))
         ];
         db()->prepare('UPDATE users SET last_login=NOW() WHERE id=?')->execute([$row['id']]);
         header('Location: dashboard.php'); exit;
