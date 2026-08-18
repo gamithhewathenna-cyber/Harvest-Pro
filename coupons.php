@@ -1,9 +1,6 @@
 <?php
 $title='Coupons'; $page='coupons.php'; $pageScript='assets/js/coupons.js';
-require_once __DIR__.'/includes/auth.php';
-require_login();
-if (!platform_admin()) { echo '<link rel="stylesheet" href="'.av('assets/css/app.css').'"><div style="padding:40px;text-align:center">Access denied. Platform admins only.</div>'; exit; }
-require __DIR__.'/includes/header.php';
+require __DIR__.'/includes/admin_header.php';
 ?>
 <div class="page-head"><h2>Coupons</h2></div>
 

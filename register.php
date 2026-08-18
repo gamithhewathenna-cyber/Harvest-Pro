@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/coupons.php';
-if (current_user()) { header('Location: dashboard.php'); exit; }
+if (current_user()) { header('Location: '.post_login_redirect()); exit; }
 
 $err = '';
 $name = $email = '';

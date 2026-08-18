@@ -1,10 +1,10 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
-if (current_user()) { header('Location: dashboard.php'); exit; }
+if (current_user()) { header('Location: '.post_login_redirect()); exit; }
 ?>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?=e(APP_NAME)?> · Tea Estate Plan</title>
+<title><?=e(site_name())?> · Tea Estate Plan</title>
 <link rel="stylesheet" href="<?=av('assets/css/app.css')?>">
 <style>
   body{background:var(--bg)}
@@ -38,7 +38,7 @@ if (current_user()) { header('Location: dashboard.php'); exit; }
 <body>
 
 <div class="lp-nav">
-  <div class="lp-brand"><div class="lp-brand-logo">🍃</div> <?=e(APP_NAME)?></div>
+  <div class="lp-brand"><div class="lp-brand-logo">🍃</div> <?=e(site_name())?></div>
   <div class="lp-nav-links">
     <a href="login.php" class="btn ghost">Login</a>
     <a href="register.php" class="btn">Register</a>
@@ -80,6 +80,6 @@ if (current_user()) { header('Location: dashboard.php'); exit; }
   </div>
 </div>
 
-<div class="lp-footer">&copy; <?=date('Y')?> <?=e(APP_NAME)?></div>
+<div class="lp-footer">&copy; <?=date('Y')?> <?=e(site_name())?></div>
 
 </body></html>

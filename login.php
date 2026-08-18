@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
-if (current_user()) { header('Location: dashboard.php'); exit; }
+if (current_user()) { header('Location: '.post_login_redirect()); exit; }
 
 $err = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($row && password_verify($pass, $row['password_hash'])) {
         start_user_session($row);
         db()->prepare('UPDATE users SET last_login=NOW() WHERE id=?')->execute([$row['id']]);
-        header('Location: dashboard.php'); exit;
+        header('Location: '.post_login_redirect()); exit;
     }
     $err = 'Invalid email or password.';
 }

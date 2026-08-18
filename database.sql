@@ -275,6 +275,46 @@ CREATE TABLE IF NOT EXISTS settings (
   PRIMARY KEY (owner_user_id, skey)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Platform-level (not per-tenant) tables
+
+CREATE TABLE IF NOT EXISTS platform_settings (
+  skey VARCHAR(80) PRIMARY KEY,
+  svalue VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS email_settings (
+  id TINYINT PRIMARY KEY DEFAULT 1,
+  smtp_host VARCHAR(160),
+  smtp_port INT DEFAULT 587,
+  smtp_user VARCHAR(160),
+  smtp_pass VARCHAR(255),
+  from_email VARCHAR(160),
+  from_name VARCHAR(120),
+  encryption ENUM('none','tls','ssl') DEFAULT 'tls'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id INT NOT NULL,
+  subject VARCHAR(200) NOT NULL,
+  status ENUM('Open','Answered','Closed') NOT NULL DEFAULT 'Open',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_ticket_owner (owner_user_id),
+  INDEX idx_ticket_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS support_ticket_replies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  ticket_id INT NOT NULL,
+  user_id INT NOT NULL,
+  is_admin_reply TINYINT(1) NOT NULL DEFAULT 0,
+  message TEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (ticket_id) REFERENCES support_tickets(id) ON DELETE CASCADE,
+  INDEX idx_reply_ticket (ticket_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS=1;
 
 -- Seed data

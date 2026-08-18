@@ -1,22 +1,18 @@
 <?php
 require_once __DIR__ . '/auth.php';
 require_login();
+if (!platform_admin()) { echo '<link rel="stylesheet" href="'.av('assets/css/app.css').'"><div style="padding:40px;text-align:center">Access denied. Platform admins only.</div>'; exit; }
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 $u = current_user();
 $page = $page ?? '';
 $nav = [
-  ['dashboard.php','Dashboard','grid'],
-  ['assignments.php','Daily Assignment','clipboard'],
-  ['estates.php','Estate Management','map'],
-  ['users.php','User Management','shield'],
-  ['employees.php','Employee','users'],
-  ['service.php','Service Management','tool'],
-  ['expenses.php','Expenses','receipt'],
-  ['reminders.php','Reminders','bell'],
-  ['reports.php','Reports','chart'],
-  ['payroll.php','Payroll','cash'],
-  ['support.php','Support','support'],
+  ['admin_dashboard.php','Admin Dashboard','grid'],
+  ['admin_users.php','User Management','shield'],
+  ['admin_tickets.php','Support Tickets','support'],
+  ['coupons.php','Coupons','tag'],
+  ['admin_settings.php','Settings','settings'],
+  ['admin_email.php','Email Config','mail'],
 ];
 ?>
 <!DOCTYPE html>
@@ -24,15 +20,15 @@ $nav = [
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?=e($title ?? APP_NAME)?></title>
+<title><?=e($title ?? site_name())?> · Admin</title>
 <link rel="stylesheet" href="<?=av('assets/css/app.css')?>">
 </head>
 <body>
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-logo">🍃</div>
-      <div class="brand-txt"><span><?=e(site_name())?></span><small>Management</small></div>
+      <div class="brand-logo">🛠️</div>
+      <div class="brand-txt"><span><?=e(site_name())?></span><small>Platform Admin</small></div>
     </div>
     <nav class="nav">
       <?php foreach($nav as $n): ?>
@@ -41,12 +37,15 @@ $nav = [
         </a>
       <?php endforeach; ?>
     </nav>
+    <div class="side-user" style="border-top:1px solid rgba(255,255,255,.08)">
+      <a href="dashboard.php" class="btn" style="width:100%;justify-content:center">Customer View →</a>
+    </div>
     <div class="side-user">
       <a href="profile.php" style="display:contents;text-decoration:none;color:inherit" title="My Profile">
         <div class="avatar"><?=e(strtoupper(substr($u['name'],0,1)))?></div>
         <div class="side-user-info">
           <strong><?=e($u['name'])?></strong>
-          <small><?=e($u['role'])?></small>
+          <small>Platform Admin</small>
         </div>
       </a>
       <a href="logout.php" class="logout" title="Logout">⏻</a>
@@ -56,7 +55,6 @@ $nav = [
     <header class="topbar">
       <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
       <h1><?=e($title ?? '')?></h1>
-      <?php if (platform_admin()): ?><a href="admin_dashboard.php" class="btn ghost sm">← Admin Dashboard</a><?php endif; ?>
-      <a class="top-right" href="profile.php" style="text-decoration:none;color:inherit"><?=e($u['name'])?> · <span class="role-tag"><?=e($u['role'])?></span></a>
+      <a class="top-right" href="profile.php" style="text-decoration:none;color:inherit"><?=e($u['name'])?> · <span class="role-tag">Platform Admin</span></a>
     </header>
     <div class="content">
