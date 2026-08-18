@@ -27,6 +27,6 @@ require __DIR__.'/header.php';
 </div>
 
 <script>window.CRUD = <?=$configJs?>;</script>
-<script src="assets/js/crud.js"></script>
+<script src="<?=av('assets/js/crud.js')?>"></script>
 <script><?=$initJs ?? 'loadRows();'?></script>
 <?php require __DIR__.'/footer.php'; ?>

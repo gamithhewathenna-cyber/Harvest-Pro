@@ -40,6 +40,13 @@ function can_admin() {
     return in_array(user_role(), ['Owner','Administrator'], true);
 }
 
+/** Cache-busting asset URL: appends the file's last-modified time as ?v= */
+function av($relPath) {
+    $full = __DIR__ . '/../' . $relPath;
+    $v = @filemtime($full);
+    return $relPath . '?v=' . ($v ?: '1');
+}
+
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 function money($n) { return CURRENCY.' '.number_format((float)$n, 2); }
 function csrf_token() {
