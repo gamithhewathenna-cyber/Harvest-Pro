@@ -1,7 +1,7 @@
 <?php
 /**
  * Tea Estate Management System - Configuration
- * Edit the DB_* values below with your cPanel MySQL details.
+ * Copy this file to config.php and edit the DB_* values below with your cPanel MySQL details.
  */
 
 // ---- EDIT THESE FOR YOUR cPANEL HOSTING ----
