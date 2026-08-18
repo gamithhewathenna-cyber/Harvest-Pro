@@ -54,11 +54,13 @@ function icon($n){
       <?php endforeach; ?>
     </nav>
     <div class="side-user">
-      <div class="avatar"><?=e(strtoupper(substr($u['name'],0,1)))?></div>
-      <div class="side-user-info">
-        <strong><?=e($u['name'])?></strong>
-        <small><?=e($u['role'])?></small>
-      </div>
+      <a href="profile.php" style="display:contents;text-decoration:none;color:inherit" title="My Profile">
+        <div class="avatar"><?=e(strtoupper(substr($u['name'],0,1)))?></div>
+        <div class="side-user-info">
+          <strong><?=e($u['name'])?></strong>
+          <small><?=e($u['role'])?></small>
+        </div>
+      </a>
       <a href="logout.php" class="logout" title="Logout">⏻</a>
     </div>
   </aside>
@@ -66,6 +68,6 @@ function icon($n){
     <header class="topbar">
       <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
       <h1><?=e($title ?? '')?></h1>
-      <div class="top-right"><?=e($u['name'])?> · <span class="role-tag"><?=e($u['role'])?></span></div>
+      <a class="top-right" href="profile.php" style="text-decoration:none;color:inherit"><?=e($u['name'])?> · <span class="role-tag"><?=e($u['role'])?></span></a>
     </header>
     <div class="content">

@@ -11,6 +11,7 @@ $configJs=json_encode([
     ['name'=>'name','label'=>'Name','required'=>true],
     ['name'=>'email','label'=>'Email','type'=>'email','required'=>true],
     ['name'=>'phone','label'=>'Phone'],
+    ['name'=>'address','label'=>'Address','col'=>'form-full'],
     ['name'=>'role','label'=>'Role','type'=>'select','options'=>['Owner','Administrator','Estate Manager','Supervisor','Accountant','Viewer']],
     ['name'=>'assigned_estate_ids','label'=>'Assigned Estate(s)','type'=>'multiselect','lookup'=>'estates'],
     ['name'=>'status','label'=>'Status','type'=>'select','options'=>['Active','Inactive']],

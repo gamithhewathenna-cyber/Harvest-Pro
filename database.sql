@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(120) NOT NULL,
   email VARCHAR(160) NOT NULL UNIQUE,
   phone VARCHAR(40),
+  address VARCHAR(255) NULL,
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('Owner','Administrator','Estate Manager','Supervisor','Accountant','Viewer') NOT NULL DEFAULT 'Viewer',
   assigned_estate_ids VARCHAR(255) NULL COMMENT 'comma-separated estate ids',
