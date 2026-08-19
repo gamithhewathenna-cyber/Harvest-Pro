@@ -45,7 +45,7 @@ $expCat = $db->query("SELECT COALESCE(category,'Other') cat, SUM(amount) amt FRO
 
 // Top workers
 $topW = $db->query("SELECT e.full_name, COALESCE(SUM(d.kg),0) kg FROM daily_assignments d
-  JOIN employees e ON e.id=d.employee_id WHERE d.work_date BETWEEN '$from' AND '$to'$eWhere
+  JOIN employees e ON e.id=d.employee_id WHERE d.work_date BETWEEN '$from' AND '$to' AND d.owner_user_id=$tenant".($estate?" AND d.estate_id=$estate":'')."
   GROUP BY e.id ORDER BY kg DESC LIMIT 5")->fetchAll();
 
 // Upcoming events (reminders + due cycles)
