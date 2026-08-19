@@ -7,8 +7,9 @@ function toast(msg, err){
 async function api(url, data, timeoutMs){
   const ctrl=new AbortController();
   const timer=setTimeout(()=>ctrl.abort(), timeoutMs||15000);
-  const opt={headers:{'Content-Type':'application/json'}, signal:ctrl.signal};
+  const opt={headers:{'Content-Type':'application/json'}, signal:ctrl.signal, cache:'no-store'};
   if(data!==undefined){opt.method='POST';opt.body=JSON.stringify({...data,csrf:window.CSRF});}
+  else{ url += (url.includes('?')?'&':'?') + '_=' + Date.now(); } // defeat any GET caching (browser/proxy/CDN), same URL every load otherwise
   try{
     const r=await fetch(url,opt);
     const j=await r.json();
