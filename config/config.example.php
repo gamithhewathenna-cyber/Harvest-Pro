@@ -4,6 +4,12 @@
  * Copy this file to config.php and edit the DB_* values below with your cPanel MySQL details.
  */
 
+if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+    http_response_code(500);
+    die('This application requires PHP 8.0 or newer (this server has PHP '.PHP_VERSION.'). '
+        .'Switch the PHP version for this domain in cPanel &gt; MultiPHP Manager (PHP 8.2 recommended).');
+}
+
 // ---- EDIT THESE FOR YOUR cPANEL HOSTING ----
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'tea_estate');      // your cPanel database name (often prefixed e.g. cpuser_tea_estate)

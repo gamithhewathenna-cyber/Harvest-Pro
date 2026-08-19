@@ -5,7 +5,7 @@ plucking assignments, payroll, expenses, service cycles, reminders and reports.
 Built to run on standard cPanel shared hosting.
 
 ## Requirements
-- PHP 7.4+ (tested on PHP 8.3) with PDO MySQL extension
+- PHP 8.0+ (targets PHP 8.2) with PDO MySQL extension
 - MySQL 5.7+ / MariaDB 10+
 - Any cPanel host (or any Apache/PHP server)
 
