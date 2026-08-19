@@ -33,6 +33,11 @@ function user_row_in_tenant($row, $tenant) {
     return (int)$row['id'] === $tenant || (int)$row['owner_user_id'] === $tenant;
 }
 
+// Never send password_hash to the browser
+$selectCols = $isUsers
+  ? 'id,name,email,phone,address,role,assigned_estate_ids,owner_user_id,is_platform_admin,status,avatar,last_login,created_at'
+  : '*';
+
 try {
   if ($action === 'list') {
     $where = []; $params = [];
@@ -49,19 +54,19 @@ try {
       $where[]="$qcol LIKE ?"; $params[]='%'.$_GET['q'].'%';
     }
     $w = $where ? ' WHERE '.implode(' AND ',$where) : '';
-    $st = $db->prepare("SELECT * FROM `$table`$w ORDER BY id DESC LIMIT 500");
+    $st = $db->prepare("SELECT $selectCols FROM `$table`$w ORDER BY id DESC LIMIT 500");
     $st->execute($params);
     ok(['rows'=>$st->fetchAll()]);
   }
 
   if ($action === 'get') {
     if ($isUsers) {
-      $st=$db->prepare("SELECT * FROM `$table` WHERE id=? AND (id=? OR owner_user_id=?)");
+      $st=$db->prepare("SELECT $selectCols FROM `$table` WHERE id=? AND (id=? OR owner_user_id=?)");
       $st->execute([(int)$_GET['id'], $tenant, $tenant]);
     } elseif ($isGlobal) {
-      $st=$db->prepare("SELECT * FROM `$table` WHERE id=?"); $st->execute([(int)$_GET['id']]);
+      $st=$db->prepare("SELECT $selectCols FROM `$table` WHERE id=?"); $st->execute([(int)$_GET['id']]);
     } else {
-      $st=$db->prepare("SELECT * FROM `$table` WHERE id=? AND owner_user_id=?");
+      $st=$db->prepare("SELECT $selectCols FROM `$table` WHERE id=? AND owner_user_id=?");
       $st->execute([(int)$_GET['id'], $tenant]);
     }
     ok(['row'=>$st->fetch()]);
